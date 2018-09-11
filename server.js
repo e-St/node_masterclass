@@ -16,12 +16,11 @@ module.exports = function (req, res) {
   });
 
   req.on("end", function () {
-    (router[trimmedPath][method] || "notFound")(undefined, function (statusCode, payload) {
-      var returnablePayload;
-
+    var handler = (router[trimmedPath] && router[trimmedPath][method]) || router.notFound;
+    handler(undefined, function (statusCode, payload) {
       statusCode = (typeof statusCode === "number" && (statusCode === statusCode)) ? statusCode : 200;  // check for NaN
       try {
-        returnablePayload = JSON.stringify(Object.prototype.toString.call(payload) === "[object Object]" ? payload : fallbackPayload);
+        var returnablePayload = JSON.stringify(Object.prototype.toString.call(payload) === "[object Object]" ? payload : fallbackPayload);
       } catch (e) {
         console.log("Could not stringify payload. Returning fallback payload.", e);
       }
